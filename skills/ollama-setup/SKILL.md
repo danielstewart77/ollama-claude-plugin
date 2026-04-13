@@ -17,9 +17,13 @@ tools: Bash
 ```bash
 HOST="${ARGUMENTS:-}"
 if [ -z "$HOST" ]; then
-  echo "Ollama host URL (press Enter for http://localhost:11434):"
+  echo "Ollama host URL (e.g. http://192.168.1.x:11434):"
   read INPUT
-  HOST="${INPUT:-http://localhost:11434}"
+  if [ -z "$INPUT" ]; then
+    echo "ERROR: Host URL is required."
+    exit 1
+  fi
+  HOST="$INPUT"
 fi
 HOST="${HOST%/}"  # strip trailing slash
 ```
