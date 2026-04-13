@@ -17,6 +17,7 @@ Manage a local or remote [Ollama](https://ollama.com) instance from Claude Code.
 
 | Skill | Description |
 |---|---|
+| `/ask-ollama` | Send a prompt to the configured model, return its response |
 | `/ollama-setup` | Configure host URL + default model, test connection |
 | `/ollama-models` | List installed models with size and date |
 | `/ollama-pull` | Pull a model: `/ollama-pull llama3.2` |

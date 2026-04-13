@@ -20,8 +20,22 @@ MODEL=$(echo $CFG | jq -r '.model')
 
 | Skill | Purpose |
 |---|---|
+| `/ask-ollama` | Send a prompt to the configured model, return its response. Use this to delegate inference to Ollama from any skill or workflow step. |
 | `/ollama-setup` | Configure host + default model, test connection, write config |
 | `/ollama-models` | List installed models with size and date |
 | `/ollama-pull` | Pull a model by name |
 | `/ollama-status` | Health check — version, model count, running processes |
 | `/ollama-switch` | Change active model in config |
+
+## Delegation pattern
+
+To route inference through Ollama in a skill, invoke `/ask-ollama` as a step:
+```
+Step N — Generate summary
+Invoke /ask-ollama with the collected data as the prompt. Use its response as the output.
+```
+
+To mark an entire skill as Ollama-only, add to the skill description:
+```
+All inference steps use /ask-ollama — do not use Claude for generation.
+```
