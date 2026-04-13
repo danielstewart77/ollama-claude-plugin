@@ -26,6 +26,7 @@ MODEL=$(echo $CFG | jq -r '.model')
 | `/ollama-pull` | Pull a model by name |
 | `/ollama-status` | Health check — version, model count, running processes |
 | `/ollama-switch` | Change active model in config |
+| `/ollama-update` | Pull latest version from GitHub, update install record, remove stale cache |
 
 ## Delegation pattern
 
