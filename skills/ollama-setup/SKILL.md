@@ -1,6 +1,6 @@
 ---
 name: ollama-setup
-description: Configure Claude Code to use an Ollama backend. Prompts for host URL, tests connection, lists models, sets default, writes ~/.claude/ollama.json.
+description: Configure the Ollama plugin. Prompts for host URL, tests connection, lists models, sets default, writes ~/.claude/ollama.json.
 argument-hint: "[host-url]"
 user-invocable: true
 tools: Bash
@@ -17,7 +17,6 @@ tools: Bash
 ```bash
 HOST="${ARGUMENTS:-}"
 if [ -z "$HOST" ]; then
-  # Prompt user — default localhost
   echo "Ollama host URL (press Enter for http://localhost:11434):"
   read INPUT
   HOST="${INPUT:-http://localhost:11434}"
@@ -55,16 +54,6 @@ fi
 ```bash
 mkdir -p ~/.claude
 echo "{\"host\":\"$HOST\",\"model\":\"$DEFAULT_MODEL\"}" > ~/.claude/ollama.json
-echo "Config saved: host=$HOST model=$DEFAULT_MODEL"
-```
-
-### 5 — Show env vars to set
-```
-To run Claude Code against this Ollama instance:
-
-  export ANTHROPIC_BASE_URL=$HOST
-  export ANTHROPIC_AUTH_TOKEN=ollama
-  claude --model $DEFAULT_MODEL
-
-Or add these exports to your shell profile.
+echo "Config saved — host=$HOST model=$DEFAULT_MODEL"
+echo "Run /ollama-status to verify."
 ```

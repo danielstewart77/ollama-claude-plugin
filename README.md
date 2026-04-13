@@ -1,22 +1,17 @@
 # Ollama Plugin for Claude Code
 
-Run Claude Code against a local or remote [Ollama](https://ollama.com) instance.
+Manage a local or remote [Ollama](https://ollama.com) instance from Claude Code. Skills call the Ollama REST API directly — they do not affect Claude Code's LLM provider or session environment.
 
 ## Install
 
 ```bash
-# Via Claude Code plugin manager
 /plugin install danielstewart77/ollama-claude-plugin
-
-# Or manually
-git clone https://github.com/danielstewart77/ollama-claude-plugin ~/.claude/plugins/ollama
 ```
 
 ## Quick Start
 
 1. [Install Ollama](https://ollama.com/download) and start it: `ollama serve`
-2. Run `/ollama-setup` — configures your host and picks a default model
-3. Set env vars (shown by setup) and restart Claude Code
+2. Run `/ollama-setup` — enter your host URL, pick a default model
 
 ## Skills
 
@@ -36,14 +31,6 @@ Written to `~/.claude/ollama.json` by `/ollama-setup`:
 ```
 
 Edit directly or re-run `/ollama-setup` to change.
-
-## Environment Variables
-
-```bash
-export ANTHROPIC_BASE_URL=http://localhost:11434
-export ANTHROPIC_AUTH_TOKEN=ollama
-claude --model llama3.2
-```
 
 ## Popular Models
 
