@@ -1,46 +1,43 @@
 # Ollama Plugin for Claude Code
 
-This plugin connects Claude Code to a local or remote Ollama instance.
+Provides skills for managing an Ollama instance and calling Ollama models directly via REST API. Does NOT change the current Claude Code session's LLM provider.
 
-## Config
+## What the skills do
 
-`~/.claude/ollama.json` — created by `/ollama-setup`:
+All skills call the Ollama REST API directly (`curl http://<host>/api/...`). They are independent of whichever LLM provider this Claude Code session is using.
+
+## Config file
+
+`~/.claude/ollama.json` — written by `/ollama-setup`, read by all other skills:
 ```json
 { "host": "http://localhost:11434", "model": "llama3.2" }
 ```
 
-Read in any skill:
+Read in a skill:
 ```bash
 CFG=$(cat ~/.claude/ollama.json 2>/dev/null || echo '{"host":"http://localhost:11434","model":"llama3.2"}')
 HOST=$(echo $CFG | jq -r '.host')
 MODEL=$(echo $CFG | jq -r '.model')
 ```
 
-## Environment (set before starting Claude Code)
-
-```bash
-export ANTHROPIC_BASE_URL=http://localhost:11434   # or your Ollama host
-export ANTHROPIC_AUTH_TOKEN=ollama
-```
-
-Run Claude Code against Ollama:
-```bash
-claude --model llama3.2
-```
-
-## Limitations vs Anthropic Claude
-
-- No vision on most models
-- No tool use on all models (depends on model)
-- Context windows vary by model (check `ollama-status`)
-- No streaming guaranteed on all endpoints
-
 ## Skills
 
 | Skill | Purpose |
 |---|---|
-| `/ollama-setup` | Configure host + default model, test connection |
-| `/ollama-models` | List installed models |
-| `/ollama-pull` | Pull a model from the Ollama library |
-| `/ollama-status` | Health check, version, model count |
+| `/ollama-setup` | Configure host + default model, test connection, write config |
+| `/ollama-models` | List installed models with size and date |
+| `/ollama-pull` | Pull a model by name |
+| `/ollama-status` | Health check — version, model count, running processes |
 | `/ollama-switch` | Change active model in config |
+
+## Running a separate Claude Code session against Ollama
+
+To start a *new* terminal session that uses Ollama as the Claude Code provider (separate from this session):
+
+```bash
+export ANTHROPIC_BASE_URL=http://localhost:11434
+export ANTHROPIC_AUTH_TOKEN=ollama
+claude --model llama3.2
+```
+
+This does not affect the current session.
