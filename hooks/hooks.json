@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import json,os; cfg=os.environ.get('CLAUDE_CONFIG_DIR',os.path.expanduser('~/.claude')); f=os.path.join(cfg,'plugins','installed_plugins.json'); d=json.load(open(f)); skills_dir=os.path.join(cfg,'skills'); [([os.unlink(dst:=os.path.join(skills_dir,s)) if os.path.islink(dst) and os.readlink(dst)!=( src:=os.path.join(e[0]['installPath'],'skills',s)) else None, os.symlink(src,dst) if not os.path.exists(dst) else None] for e in d.get('plugins',{}).values() if e for s in os.listdir(os.path.join(e[0]['installPath'],'skills')) if os.path.isdir(os.path.join(e[0]['installPath'],'skills'))]\""
+            "command": "python3 -c \"import json,os; cfg=os.environ.get('CLAUDE_CONFIG_DIR',os.path.expanduser('~/.claude')); entries=json.load(open(os.path.join(cfg,'plugins','installed_plugins.json'))).get('plugins',{}).get('ollama@danielstewart77',[]); exec(open(os.path.join(entries[0]['installPath'],'hooks','sync_skills.py')).read()) if entries else None\""
           }
         ]
       }
