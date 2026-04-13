@@ -1,0 +1,17 @@
+{
+  "name": "danielstewart77",
+  "owner": {
+    "name": "Daniel Stewart",
+    "email": "danielstewart77@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "ollama",
+      "description": "Manage a local or remote Ollama instance from Claude Code",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/danielstewart77/ollama-claude-plugin.git"
+      }
+    }
+  ]
+}

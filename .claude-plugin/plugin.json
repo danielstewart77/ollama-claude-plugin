@@ -1,0 +1,9 @@
+{
+  "name": "ollama",
+  "version": "1.0.0",
+  "description": "Manage a local or remote Ollama instance from Claude Code — list models, pull, switch, status",
+  "author": {
+    "name": "Daniel Stewart",
+    "email": "danielstewart77@gmail.com"
+  }
+}
