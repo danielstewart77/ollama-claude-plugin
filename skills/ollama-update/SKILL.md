@@ -7,11 +7,12 @@ tools: Bash
 
 # ollama-update
 
-Pull the latest plugin version from GitHub, update the install record, and remove stale cache folders.
+Pull the latest plugin version from GitHub, update the install record, remove stale cache folders, and refresh skill symlinks.
 
 ```bash
 PLUGIN_CACHE="$HOME/.claude-config/plugins/cache/danielstewart77/ollama"
 INSTALLED_JSON="$HOME/.claude-config/plugins/installed_plugins.json"
+SKILLS_DIR="$HOME/.claude-config/skills"
 REPO_URL="https://github.com/danielstewart77/ollama-claude-plugin.git"
 PLUGIN_KEY="ollama@danielstewart77"
 
@@ -34,6 +35,9 @@ print(entries[0].get('version', '') if entries else '')
 
 if [ "$LATEST_SHORT" = "$CURRENT_SHORT" ]; then
   echo "Already up to date ($LATEST_SHORT)."
+  # Refresh symlinks anyway in case they're stale
+  bash "$HOME/.claude-config/hooks/plugin_skills_sync.sh" 2>/dev/null
+  echo "Skill symlinks verified."
   exit 0
 fi
 
@@ -77,5 +81,9 @@ for dir in "$PLUGIN_CACHE"/*/; do
   fi
 done
 
-echo "Plugin updated to $LATEST_SHORT. Restart your session to load the new version."
+# Refresh skill symlinks to point to new version
+bash "$HOME/.claude-config/hooks/plugin_skills_sync.sh" 2>/dev/null
+echo "Skill symlinks updated."
+
+echo "Plugin updated to $LATEST_SHORT. Skills are live — no session restart needed."
 ```
