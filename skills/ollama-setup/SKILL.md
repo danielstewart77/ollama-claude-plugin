@@ -30,7 +30,8 @@ HOST="${HOST%/}"  # strip trailing slash
 
 ### 2 — Test connection
 ```bash
-VERSION=$(curl -sf "$HOST/api/version" | jq -r '.version' 2>/dev/null)
+RESP=$(curl -sf "$HOST/api/version")
+VERSION=$(echo "$RESP" | python3 -c "import json,sys; print(json.loads(sys.stdin.read()).get('version',''))" 2>/dev/null)
 if [ -z "$VERSION" ]; then
   echo "ERROR: Cannot reach Ollama at $HOST"
   echo "Is Ollama running? Try: ollama serve"
@@ -41,7 +42,12 @@ echo "Connected — Ollama $VERSION at $HOST"
 
 ### 3 — List models and pick default
 ```bash
-MODELS=$(curl -sf "$HOST/api/tags" | jq -r '.models[].name' 2>/dev/null)
+MODELS=$(curl -sf "$HOST/api/tags" | python3 -c "
+import json, sys
+data = json.loads(sys.stdin.read())
+for m in data.get('models', []):
+    print(m['name'])
+" 2>/dev/null)
 if [ -z "$MODELS" ]; then
   echo "No models installed. Run /ollama-pull to add one."
   DEFAULT_MODEL="llama3.2"
@@ -56,8 +62,13 @@ fi
 
 ### 4 — Write config
 ```bash
-mkdir -p ~/.claude
-echo "{\"host\":\"$HOST\",\"model\":\"$DEFAULT_MODEL\"}" > ~/.claude/ollama.json
+python3 -c "
+import json, os
+cfg = {'host': os.environ['HOST'], 'model': os.environ['DEFAULT_MODEL']}
+path = os.path.expanduser('~/.claude/ollama.json')
+os.makedirs(os.path.dirname(path), exist_ok=True)
+json.dump(cfg, open(path, 'w'))
+" HOST="$HOST" DEFAULT_MODEL="$DEFAULT_MODEL"
 echo "Config saved — host=$HOST model=$DEFAULT_MODEL"
 echo "Run /ollama-status to verify."
 ```

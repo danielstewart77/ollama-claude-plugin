@@ -12,9 +12,13 @@ tools: Bash
 `$ARGUMENTS` — the prompt to send. Required.
 
 ```bash
-CFG=$(cat ~/.claude/ollama.json 2>/dev/null || echo '{}')
-HOST=$(echo "$CFG" | jq -r '.host // empty')
-MODEL=$(echo "$CFG" | jq -r '.model // empty')
+if [ ! -f "$HOME/.claude/ollama.json" ]; then
+  echo "ERROR: Ollama not configured. Run /ollama-setup first."
+  exit 1
+fi
+
+HOST=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.claude/ollama.json'))); print(d.get('host',''))")
+MODEL=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.claude/ollama.json'))); print(d.get('model',''))")
 
 if [ -z "$HOST" ] || [ -z "$MODEL" ]; then
   echo "ERROR: Ollama not configured. Run /ollama-setup first."
@@ -27,8 +31,10 @@ if [ -z "$PROMPT" ]; then
   exit 1
 fi
 
-PAYLOAD=$(jq -n --arg model "$MODEL" --arg content "$PROMPT" \
-  '{"model":$model,"messages":[{"role":"user","content":$content}],"stream":false}')
+PAYLOAD=$(python3 -c "
+import json, sys
+print(json.dumps({'model': sys.argv[1], 'messages': [{'role': 'user', 'content': sys.argv[2]}], 'stream': False}))
+" "$MODEL" "$PROMPT")
 
 RESPONSE=$(curl -sf -X POST "$HOST/api/chat" \
   -H "Content-Type: application/json" \
@@ -39,13 +45,16 @@ if [ -z "$RESPONSE" ]; then
   exit 1
 fi
 
-CONTENT=$(echo "$RESPONSE" | jq -r '.message.content // empty')
-if [ -z "$CONTENT" ]; then
-  echo "ERROR: Unexpected response format:"
-  echo "$RESPONSE"
-  exit 1
-fi
-
-echo "[$MODEL]"
-echo "$CONTENT"
+echo "$RESPONSE" | python3 -c "
+import json, sys
+d = json.loads(sys.stdin.read())
+content = d.get('message', {}).get('content', '')
+model = d.get('model', 'unknown')
+if not content:
+    print('ERROR: Unexpected response format:')
+    print(json.dumps(d, indent=2))
+    sys.exit(1)
+print(f'[{model}]')
+print(content)
+"
 ```

@@ -8,9 +8,13 @@ tools: Bash
 # ollama-models
 
 ```bash
-CFG=$(cat ~/.claude/ollama.json 2>/dev/null || echo '{"host":"http://localhost:11434","model":"llama3.2"}')
-HOST=$(echo $CFG | jq -r '.host')
-CURRENT=$(echo $CFG | jq -r '.model')
+if [ ! -f "$HOME/.claude/ollama.json" ]; then
+  echo "ERROR: Ollama not configured. Run /ollama-setup first."
+  exit 1
+fi
+
+HOST=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.claude/ollama.json'))); print(d.get('host','http://localhost:11434'))")
+CURRENT=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.claude/ollama.json'))); print(d.get('model',''))")
 
 RESULT=$(curl -sf "$HOST/api/tags")
 if [ -z "$RESULT" ]; then
@@ -20,6 +24,16 @@ fi
 
 echo "Ollama models at $HOST (active: $CURRENT)"
 echo "---"
-echo "$RESULT" | jq -r '.models[] | "\(.name)\t\(.size / 1073741824 | . * 10 | round / 10)GB\t\(.modified_at[:10])"' \
-  | column -t -s $'\t'
+echo "$RESULT" | python3 -c "
+import json, sys
+data = json.loads(sys.stdin.read())
+models = data.get('models', [])
+if not models:
+    print('No models installed.')
+else:
+    for m in models:
+        size_gb = round(m.get('size', 0) / 1073741824, 1)
+        modified = m.get('modified_at', '')[:10]
+        print(f\"{m['name']:<40} {size_gb}GB  {modified}\")
+"
 ```

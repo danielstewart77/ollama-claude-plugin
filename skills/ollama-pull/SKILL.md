@@ -19,13 +19,18 @@ if [ -z "$MODEL" ]; then
   exit 1
 fi
 
-CFG=$(cat ~/.claude/ollama.json 2>/dev/null || echo '{"host":"http://localhost:11434"}')
-HOST=$(echo $CFG | jq -r '.host')
+if [ ! -f "$HOME/.claude/ollama.json" ]; then
+  echo "ERROR: Ollama not configured. Run /ollama-setup first."
+  exit 1
+fi
+
+HOST=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.claude/ollama.json'))); print(d.get('host','http://localhost:11434'))")
 
 echo "Pulling $MODEL from $HOST..."
 curl -sf -X POST "$HOST/api/pull" \
   -H "Content-Type: application/json" \
-  -d "{\"name\":\"$MODEL\",\"stream\":false}" | jq -r '.status'
+  -d "{\"name\":\"$MODEL\",\"stream\":false}" \
+  | python3 -c "import json,sys; print(json.loads(sys.stdin.read()).get('status','done'))"
 
 echo "Done. Run /ollama-models to verify."
 ```
